@@ -1,0 +1,191 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const SimpleCalculatorApp());
+}
+
+class SimpleCalculatorApp extends StatelessWidget {
+  const SimpleCalculatorApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Student Calculator',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const SimpleCalculator(),
+    );
+  }
+}
+
+class SimpleCalculator extends StatefulWidget {
+  const SimpleCalculator({super.key});
+
+  @override
+  _SimpleCalculatorState createState() => _SimpleCalculatorState();
+}
+
+class _SimpleCalculatorState extends State<SimpleCalculator> {
+  String output = "0";
+  String _output = "0";
+  double num1 = 0.0;
+  double num2 = 0.0;
+  String operand = "";
+
+  void buttonPressed(String buttonText) {
+    if (buttonText == "CLEAR") {
+      _output = "0";
+      output = "0";
+      num1 = 0.0;
+      num2 = 0.0;
+      operand = "";
+    } else if (buttonText == "+" || buttonText == "-" || buttonText == "×" || buttonText == "/") {
+      // Use tryParse to avoid crashes if output is non-numeric
+      num1 = double.tryParse(output) ?? 0.0;
+      operand = buttonText;
+      _output = "0";
+    } else if (buttonText == ".") {
+      if (_output.contains(".")) {
+        // ignore additional decimal points
+        return;
+      }
+      _output = _output + buttonText;
+    } else if (buttonText == "=") {
+      num2 = double.tryParse(output) ?? 0.0;
+
+      if (operand == "+") {
+        _output = (num1 + num2).toString();
+      } else if (operand == "-") {
+        _output = (num1 - num2).toString();
+      } else if (operand == "×") {
+        _output = (num1 * num2).toString();
+      } else if (operand == "/") {
+        if (num2 != 0) {
+          _output = (num1 / num2).toString();
+        } else {
+          _output = "Error";
+        }
+      }
+
+      num1 = 0.0;
+      num2 = 0.0;
+      operand = "";
+    } else {
+      // Append digits to current value, handling leading zero
+      _output = _output == "0" ? buttonText : _output + buttonText;
+    }
+
+    // Remove trailing .0 for integer results
+    if (_output.endsWith(".0")) {
+      _output = _output.substring(0, _output.length - 2);
+    }
+
+    setState(() {
+      // If _output is a number, normalize its string form; else keep as-is (e.g., "Error")
+      final parsed = double.tryParse(_output);
+      output = parsed != null ? parsed.toString() : _output;
+    });
+  }
+
+  // buildButton now returns only the button widget — callers handle Expanded/flex
+  Widget buildButton(String buttonText, Color bgColor, Color textColor) {
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: bgColor,
+          foregroundColor: textColor,
+          padding: const EdgeInsets.all(20.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        child: Text(buttonText),
+        onPressed: () => buttonPressed(buttonText),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My First Calculator!'),
+        elevation: 0,
+      ),
+      body: Container(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: <Widget>[
+            Container(
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 12.0),
+              decoration: BoxDecoration(
+                color: Colors.black87,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Text(
+                output,
+                style: const TextStyle(
+                  fontSize: 48.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            const Divider(),
+            Column(
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Expanded(child: buildButton("CLEAR", Colors.red.shade400, Colors.white)),
+                    Expanded(child: buildButton("/", Colors.grey.shade400, Colors.black)),
+                    Expanded(child: buildButton("×", Colors.grey.shade400, Colors.black)),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Expanded(child: buildButton("7", Colors.white, Colors.black)),
+                    Expanded(child: buildButton("8", Colors.white, Colors.black)),
+                    Expanded(child: buildButton("9", Colors.white, Colors.black)),
+                    Expanded(child: buildButton("-", Colors.grey.shade400, Colors.black)),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Expanded(child: buildButton("4", Colors.white, Colors.black)),
+                    Expanded(child: buildButton("5", Colors.white, Colors.black)),
+                    Expanded(child: buildButton("6", Colors.white, Colors.black)),
+                    Expanded(child: buildButton("+", Colors.grey.shade400, Colors.black)),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Expanded(child: buildButton("1", Colors.white, Colors.black)),
+                    Expanded(child: buildButton("2", Colors.white, Colors.black)),
+                    Expanded(child: buildButton("3", Colors.white, Colors.black)),
+                    Expanded(child: buildButton("=", Colors.green.shade600, Colors.white)),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 2,
+                      child: buildButton("0", Colors.white, Colors.black),
+                    ),
+                    Expanded(child: buildButton(".", Colors.white, Colors.black)),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
