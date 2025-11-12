@@ -1,191 +1,29 @@
-import 'package:flutter/material.dart';
+| Sr. No. | Test Plan Point               | Answer                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------: | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|       1 | **Test Plan Identifier**      | OARS_TEST_PLAN_v1.0 — Online Admission & Registration System (OARS) — Functional, Integration, System, Security & Performance Testing                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+|       2 | **References**                | 1. OARS Functional Specification v1.2<br>2. OARS UI/UX Mockups (Figma) v1.0<br>3. OARS Data Model & API Spec v0.9<br>4. IEEE 829 Test Documentation Guidelines<br>5. Payment Gateway Integration Guide (PG_VENDOR_X)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+|       3 | **Introduction**              | **Purpose:** Validate correctness, reliability, security, and usability of OARS which allows global applicants to create accounts, fill applications, upload documents, check admission status, receive decisions, and pay fees.<br>**Scope:** End-to-end admission workflow (signup → login → form fill → uploads → status check → decision → payment). Out-of-scope: third-party background-check integrations, offline/manual admission flows. <br>**Objectives:** Ensure correctness of business rules, data validation, document handling, notifications, secure payments, scalability for expected concurrent applicants, and compliance with accessibility basics.                                                                                                                                             |
+|       4 | **Features to be Tested**     | 1. User registration (create username, email verification).<br>2. Login/logout and session management.<br>3. Application form (field validation, progressive save, edit).<br>4. File upload & attachment (supported types, max size, multiple docs).<br>5. Application submission & status tracking (Submitted, Under Review, Accepted, Rejected, On Hold).<br>6. Decision handling & notifications (email/SMS).<br>7. Payment processing (credit/debit card and net-banking).<br>8. Security checks (auth, input validation, session expiration, SQL/XSS).<br>9. Cross-browser compatibility and responsive UI.<br>10. Performance under concurrent users (basic load).                                                                                                                                              |
+|       5 | **Approach**                  | **Test levels:** Unit (dev), Integration (APIs), System (end-to-end), Acceptance (UX & functional).<br>**Testing types:** Functional, Negative, Security (input sanitization), Usability, Compatibility (Chrome/Firefox/Edge; Desktop/Mobile), Performance (smoke load), Regression. <br>**Test techniques:** Manual exploratory + scripted automated tests using Selenium + PyTest for critical flows (registration, login, upload, payment sandbox). Use mock payment gateway/sandbox for automated payment tests. Use test data sets (valid/invalid) and test accounts. <br>**Entry Criteria:** Dev build deployed to test environment; DB seeded with test accounts; payment sandbox credentials available. <br>**Exit Criteria:** All critical test cases passed; no P1/P2 defects open; regression tests green. |
+|       6 | **Environmental Needs**       | **Hardware/OS:** Windows 10/11, Ubuntu 22.04, macOS (optional).<br>**Browsers:** Chrome (latest), Firefox (latest), Edge (latest), Mobile Chrome (Android emulator).<br>**Test servers:** QA application URL, Test DB, Test SMTP, Payment gateway sandbox, File storage (test S3 or local).<br>**Tools:** Selenium + PyTest, Postman (API checks), JMeter (basic load), Browser DevTools, Git. <br>**Test Data:** Seeded users, sample documents (pdf, jpg, png), card test numbers for sandbox.                                                                                                                                                                                                                                                                                                                      |
+|       7 | **Staffing & Training Needs** | **Staff:** 1 Test Lead, 2 Functional Testers, 1 Automation Tester, 1 Performance Tester (part-time), 1 Security Tester (part-time).<br>**Training:** Intro to payment sandbox usage, test environment access instructions, automation framework onboarding (Selenium+PyTest), data privacy handling for test documents.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+|       8 | **Responsibilities**          | **Test Lead:** Plan & report progress, manage risks.<br>**Functional Testers:** Execute manual test cases, report defects.<br>**Automation Tester:** Implement automated suites for smoke/regression flows.<br>**Dev Team:** Fix defects, provide build deployments.<br>**Ops:** Maintain QA environment, rollback/restore DB as needed.<br>**Business Owner:** Sign off acceptance criteria.                                                                                                                                                                                                                                                                                                                                                                                                                         |
+|       9 | **Schedule**                  | *High-level (example timeline):*<br>- Test Plan review & approval: Day 1–2<br>- Environment setup & test data seeding: Day 2–4<br>- Smoke & Sanity tests (automated): Day 5–6<br>- Functional testing (manual): Day 7–14<br>- Automation of regressions: Day 10–16 (parallel)<br>- Security & performance quick checks: Day 12–16<br>- UAT & sign-off: Day 17–18<br>*(Adjust to your exam/project dates; this is a sample 3-week plan scaled down as needed.)*                                                                                                                                                                                                                                                                                                                                                        |
+|      10 | **Approval**                  | **Prepared By:** [Test Lead — name] — Date: _______<br>**Reviewed By:** [Project Manager — name] — Date: _______<br>**Approved By:** [Business Owner/Stakeholder — name] — Date: _______                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
-void main() {
-  runApp(const SimpleCalculatorApp());
-}
 
-class SimpleCalculatorApp extends StatelessWidget {
-  const SimpleCalculatorApp({super.key});
+| Sr. No. | Test Case ID | Test Scenario / Step                                                                                                                                                                                                                                                    | Test Data                                                                             | Expected Result                                                                                                                                                                       | Actual Result | Pass / Fail |
+| ------: | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ----------- |
+|       1 | OARS_TC_01   | **User Registration - valid details**<br>Steps: 1. Navigate to /register 2. Enter valid username, email, password 3. Submit 4. Verify email verification link received and clicked                                                                                      | username: `testuser1`<br>email: `testuser1@example.com`<br>password: `Test@1234`      | Registration success page shown; verification email received; account activated after clicking verification link; login allowed                                                       |               |             |
+|       2 | OARS_TC_02   | **User Registration - duplicate username/email**<br>Steps: 1. Go to /register 2. Enter an existing username/email 3. Submit                                                                                                                                             | username: existing_user<br>email: [existing@example.com](mailto:existing@example.com) | Validation error displayed: "Username/email already exists"; user remains on registration page; HTTP 200                                                                              |               |             |
+|       3 | OARS_TC_03   | **Login - valid credentials**<br>Steps: 1. Navigate to /login 2. Enter valid credentials 3. Click Login                                                                                                                                                                 | username: `student`<br>password: `Password123`                                        | Redirect to applicant dashboard; session cookie set; dashboard shows applicant name and application status                                                                            |               |             |
+|       4 | OARS_TC_04   | **Login - invalid credentials**<br>Steps: 1. Go to /login 2. Enter wrong password 3. Click Login                                                                                                                                                                        | username: `student`<br>password: `wrongPass`                                          | Error text displayed: "Your username or password is incorrect"; no redirect; login attempt counted for rate-limiting                                                                  |               |             |
+|       5 | OARS_TC_05   | **Application Form - field validation (required fields)**<br>Steps: 1. Login 2. Go to application form 3. Leave required fields blank 4. Submit                                                                                                                         | Leave 'Full Name', 'Date of Birth', 'Nationality' empty                               | Inline validation messages shown next to each required field; form not submitted                                                                                                      |               |             |
+|       6 | OARS_TC_06   | **Application Form - save draft and resume later**<br>Steps: 1. Start filling form 2. Click 'Save Draft' 3. Logout 4. Login 5. Open draft                                                                                                                               | Partial form data filled (e.g., address filled)                                       | Previously entered data persisted and pre-populated; user can resume editing                                                                                                          |               |             |
+|       7 | OARS_TC_07   | **File Upload - accepted file type & size**<br>Steps: 1. On document upload step 2. Upload allowed file (pdf, < max size) 3. Attach and submit                                                                                                                          | file: `transcript.pdf` (size 800 KB)                                                  | File accepted, listed under attachments, and uploads successfully; file preview/download available                                                                                    |               |             |
+|       8 | OARS_TC_08   | **File Upload - invalid file type & oversized**<br>Steps: 1. Try to upload `.exe` or file > max size 2. Submit                                                                                                                                                          | file: `malware.exe` or `large_file.pdf` (15 MB if max is 5 MB)                        | Client-side or server-side validation rejects upload; meaningful error shown (e.g., "File type not allowed" or "File exceeds max size 5MB")                                           |               |             |
+|       9 | OARS_TC_09   | **Application Submission & Status Tracking**<br>Steps: 1. Complete form + attach docs 2. Click Submit 3. Navigate to 'My Applications' 4. Check status updates                                                                                                          | Completed application data                                                            | Application status shows "Submitted"; status timeline available (Submitted → Under Review → Decision); timestamps present                                                             |               |             |
+|      10 | OARS_TC_10   | **Decision flow & notification (Accepted)**<br>Steps: 1. Admin marks application as 'Accepted' in admin portal 2. Applicant checks status/email 3. Applicant clicks 'Pay Admission Fee'                                                                                 | Application in 'Under Review' -> action 'Accept'                                      | Applicant receives notification email; dashboard shows 'Accepted' and shows payment options; clicking payment initiates payment gateway flow                                          |               |             |
+|      11 | OARS_TC_11   | **Payment flow - Card & Net-banking (sandbox)**<br>Steps: 1. On 'Pay' click 2. Choose Card / Net-banking 3. Enter sandbox test card/netbanking creds 4. Confirm payment 5. Verify transaction success & receipt                                                         | Card: test card number (from sandbox)<br>NetBanking: test bank credentials            | Payment succeeds in sandbox; transaction status updated to 'Paid'; receipt/invoice generated and emailed; application status updated to 'Fee Paid'                                    |               |             |
+|      12 | OARS_TC_12   | **Security & input validation (SQL/XSS) and session timeout**<br>Steps: 1. Try SQL injection in username field (`' OR '1'='1`) 2. Try script tags in inputs `<script>alert(1)</script>` 3. Log in and remain idle until session timeout 4. Attempt action after timeout | Malicious strings as input; idle period (e.g., configured timeout 15 mins)            | Inputs are sanitized/escaped; login does not succeed for injection attempts; no script execution on UI; after timeout user is logged out and redirect to login when performing action |               |             |
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Student Calculator',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const SimpleCalculator(),
-    );
-  }
-}
-
-class SimpleCalculator extends StatefulWidget {
-  const SimpleCalculator({super.key});
-
-  @override
-  _SimpleCalculatorState createState() => _SimpleCalculatorState();
-}
-
-class _SimpleCalculatorState extends State<SimpleCalculator> {
-  String output = "0";
-  String _output = "0";
-  double num1 = 0.0;
-  double num2 = 0.0;
-  String operand = "";
-
-  void buttonPressed(String buttonText) {
-    if (buttonText == "CLEAR") {
-      _output = "0";
-      output = "0";
-      num1 = 0.0;
-      num2 = 0.0;
-      operand = "";
-    } else if (buttonText == "+" || buttonText == "-" || buttonText == "×" || buttonText == "/") {
-      // Use tryParse to avoid crashes if output is non-numeric
-      num1 = double.tryParse(output) ?? 0.0;
-      operand = buttonText;
-      _output = "0";
-    } else if (buttonText == ".") {
-      if (_output.contains(".")) {
-        // ignore additional decimal points
-        return;
-      }
-      _output = _output + buttonText;
-    } else if (buttonText == "=") {
-      num2 = double.tryParse(output) ?? 0.0;
-
-      if (operand == "+") {
-        _output = (num1 + num2).toString();
-      } else if (operand == "-") {
-        _output = (num1 - num2).toString();
-      } else if (operand == "×") {
-        _output = (num1 * num2).toString();
-      } else if (operand == "/") {
-        if (num2 != 0) {
-          _output = (num1 / num2).toString();
-        } else {
-          _output = "Error";
-        }
-      }
-
-      num1 = 0.0;
-      num2 = 0.0;
-      operand = "";
-    } else {
-      // Append digits to current value, handling leading zero
-      _output = _output == "0" ? buttonText : _output + buttonText;
-    }
-
-    // Remove trailing .0 for integer results
-    if (_output.endsWith(".0")) {
-      _output = _output.substring(0, _output.length - 2);
-    }
-
-    setState(() {
-      // If _output is a number, normalize its string form; else keep as-is (e.g., "Error")
-      final parsed = double.tryParse(_output);
-      output = parsed != null ? parsed.toString() : _output;
-    });
-  }
-
-  // buildButton now returns only the button widget — callers handle Expanded/flex
-  Widget buildButton(String buttonText, Color bgColor, Color textColor) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: bgColor,
-          foregroundColor: textColor,
-          padding: const EdgeInsets.all(20.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          textStyle: const TextStyle(
-            fontSize: 20.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        child: Text(buttonText),
-        onPressed: () => buttonPressed(buttonText),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('My First Calculator!'),
-        elevation: 0,
-      ),
-      body: Container(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: <Widget>[
-            Container(
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 12.0),
-              decoration: BoxDecoration(
-                color: Colors.black87,
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Text(
-                output,
-                style: const TextStyle(
-                  fontSize: 48.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            const Divider(),
-            Column(
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Expanded(child: buildButton("CLEAR", Colors.red.shade400, Colors.white)),
-                    Expanded(child: buildButton("/", Colors.grey.shade400, Colors.black)),
-                    Expanded(child: buildButton("×", Colors.grey.shade400, Colors.black)),
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(child: buildButton("7", Colors.white, Colors.black)),
-                    Expanded(child: buildButton("8", Colors.white, Colors.black)),
-                    Expanded(child: buildButton("9", Colors.white, Colors.black)),
-                    Expanded(child: buildButton("-", Colors.grey.shade400, Colors.black)),
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(child: buildButton("4", Colors.white, Colors.black)),
-                    Expanded(child: buildButton("5", Colors.white, Colors.black)),
-                    Expanded(child: buildButton("6", Colors.white, Colors.black)),
-                    Expanded(child: buildButton("+", Colors.grey.shade400, Colors.black)),
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(child: buildButton("1", Colors.white, Colors.black)),
-                    Expanded(child: buildButton("2", Colors.white, Colors.black)),
-                    Expanded(child: buildButton("3", Colors.white, Colors.black)),
-                    Expanded(child: buildButton("=", Colors.green.shade600, Colors.white)),
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      flex: 2,
-                      child: buildButton("0", Colors.white, Colors.black),
-                    ),
-                    Expanded(child: buildButton(".", Colors.white, Colors.black)),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
